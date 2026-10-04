@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juice Shop Login Clone</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f4f4; display: flex;
+           justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    .card { background: #fff; padding: 2rem; border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.1); width: 320px; }
+    h1 { font-size: 1.25rem; margin-top: 0; }
+    label { display: block; margin: .75rem 0 .25rem; font-size: .9rem; }
+    input { width: 100%; padding: .55rem; box-sizing: border-box;
+            border: 1px solid #ccc; border-radius: 6px; }
+    button { width: 100%; margin-top: 1rem; padding: .6rem; border: 0;
+             border-radius: 6px; background: #d2691e; color: #fff;
+             font-size: 1rem; cursor: pointer; }
+    .msg { margin-top: 1rem; font-size: .9rem; min-height: 1.2em; }
+    .error { color: #c0392b; }
+    .success { color: #27ae60; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🧃 Juice Shop Login (Clone)</h1>
+    <form id="loginForm" novalidate>
+      <label for="email">Email</label>
+      <input type="text" id="email" name="email" autocomplete="username" />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" />
+
+      <button type="submit">Log in</button>
+    </form>
+    <p id="message" class="msg"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const messageEl = document.getElementById('message');
+
+    // Client-side validation: returns an error string, or null if the input is valid.
+    function validate(email, password) {
+      if (!email.trim() || !password.trim()) return 'Please fill in both fields.';
+      if (!email.includes('@')) return 'Email must contain "@".';
+      if (password.length < 8) return 'Password must be at least 8 characters.';
+      return null;
+    }
+
+    function showMessage(text, type) {
+      messageEl.textContent = text;
+      messageEl.className = 'msg ' + type;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      //Client-side validation
+      const clientError = validate(email, password);
+      if (clientError) {
+        showMessage(clientError, 'error');
+        return;
+      }
+
+      //Send to the server
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        showMessage(data.message, data.success ? 'success' : 'error');
+      } catch (err) {
+        showMessage('Could not reach the server.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
